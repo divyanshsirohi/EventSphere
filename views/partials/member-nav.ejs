@@ -1,0 +1,38 @@
+<nav class="bg-indigo-600 text-white shadow-lg">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center">
+          <a href="/" class="text-xl font-bold">EventSphere</a>
+        </div>
+        
+        <div class="hidden md:flex space-x-6">
+          <a href="/" class="hover:text-indigo-200">Home</a>
+          <a href="/member/joined-events" class="hover:text-indigo-200">My Events</a>
+          <a href="/member/profile" class="hover:text-indigo-200">Profile</a>
+          <form action="/auth/logout" method="POST" class="inline">
+            <button type="submit" class="hover:text-indigo-200">Logout</button>
+          </form>
+        </div>
+        
+        <!-- Mobile menu button -->
+        <div class="md:hidden">
+          <button id="mobile-menu-button" class="text-white focus:outline-none">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="hidden md:hidden pb-4">
+        <a href="/" class="block py-2 hover:text-indigo-200">Home</a>
+        <a href="/member/joined-events" class="block py-2 hover:text-indigo-200">My Events</a>
+        <a href="/member/profile" class="block py-2 hover:text-indigo-200">Profile</a>
+        <form action="/auth/logout" method="POST">
+          <button type="submit" class="block py-2 hover:text-indigo-200 w-full text-left">Logout</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  

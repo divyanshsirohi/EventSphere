@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('./partials/header') %>
+  <title>Error - EventSphere</title>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="max-w-md w-full bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="p-6">
+      <div class="text-center mb-6">
+        <svg class="h-16 w-16 text-red-600 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <h1 class="text-3xl font-bold text-red-600 mt-2">Error</h1>
+      </div>
+      
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <p><%= error.message || 'An unexpected error occurred' %></p>
+        <% if (process.env.NODE_ENV !== 'production' && error.stack) { %>
+          <pre class="mt-2 text-xs overflow-auto max-h-40"><%= error.stack %></pre>
+        <% } %>
+      </div>
+      
+      <div class="text-center mt-6">
+        <a href="/" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          Go Home
+        </a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

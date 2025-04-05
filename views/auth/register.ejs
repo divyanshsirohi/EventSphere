@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/header') %>
+  <title>Register - EventSphere</title>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="p-6">
+        <div class="text-center mb-6">
+          <h1 class="text-3xl font-bold text-indigo-600">EventSphere</h1>
+          <p class="text-gray-600 mt-2">Create your account</p>
+        </div>
+        
+        <% if (locals.error) { %>
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <%= error %>
+          </div>
+        <% } %>
+        
+        <form action="/auth/register" method="POST" data-validate="true">
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+              Full Name
+            </label>
+            <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="name" name="name" type="text" required>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+              Email
+            </label>
+            <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="email" name="email" type="email" required>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="mobile">
+              Mobile Number
+            </label>
+            <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="mobile" name="mobile" type="tel">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+              Password
+            </label>
+            <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="password" name="password" type="password" required>
+          </div>
+          
+          <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="confirm_password">
+              Confirm Password
+            </label>
+            <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="confirm_password" name="confirm_password" type="password" required data-confirm-password="password">
+          </div>
+          
+          <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+              Register as:
+            </label>
+            <div class="flex space-x-4">
+              <div class="flex items-center">
+                <input type="radio" id="member" name="role" value="member" class="h-4 w-4 text-indigo-600" checked>
+                <label for="member" class="ml-2 text-gray-700">Member</label>
+              </div>
+              <div class="flex items-center">
+                <input type="radio" id="host" name="role" value="host" class="h-4 w-4 text-indigo-600">
+                <label for="host" class="ml-2 text-gray-700">Host</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex items-center justify-between">
+            <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full" 
+                    type="submit">
+              Register
+            </button>
+          </div>
+        </form>
+        
+        <div class="text-center mt-6">
+          <p class="text-gray-600">
+            Already have an account? 
+            <a href="/auth/login" class="text-indigo-600 hover:text-indigo-800">Login</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/header') %>
+  <title>Edit Event - EventSphere</title>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <%- include('../partials/host-nav') %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <!-- Flash Messages -->
+    <% if (locals.success) { %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 flash-message">
+        <%= success %>
+      </div>
+    <% } %>
+    
+    <% if (locals.error) { %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flash-message">
+        <%= error %>
+      </div>
+    <% } %>
+    
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-2xl font-bold mb-6">Edit Event: <%= event.event_name %></h1>
+      
+      <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-6">
+          <form action="/host/update-event/<%= event.event_id %>" method="POST" enctype="multipart/form-data" data-validate="true">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="md:col-span-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="event_name">
+                  Event Name *
+                </label>
+                <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                      id="event_name" name="event_name" type="text" value="<%= event.event_name %>" required>
+              </div>
+              
+              <div class="md:col-span-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
+                  Description
+                </label>
+                <textarea class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                      id="description" name="description" rows="4"><%= event.description || '' %></textarea>
+              </div>
+              
+              <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="category_id">
+                  Category *
+                </label>
+                <select class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                      id="category_id" name="category_id" required>
+                  <option value="">Select a category</option>
+                  <% if (locals.categories) { %>
+                    <% categories.forEach(category => { %>
+                      <option value="<%= category.category_id %>" <%= event.category_id == category.category_id ? 'selected' : '' %>>
+                        <%= category.category_name %>
+                      </option>
+                    <% }); %>
+                  <% } %>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="price">
+                  Price ($) *
+                </label>
+                <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                      id="price" name="price" type="number" min="0" step="0.01" value="<%= event.price %>" required>
+              </div>
+              
+              <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="start_date">
+                  Start Date & Time *
+                </label>
+                <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                      id="start_date" name="start_date" type="datetime-local" 
+                      value="<%= new Date(event.start_date).toISOString().slice(0, 16) %>" required>
+              </div>
+              
+              <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="end_date">
+                  End Date & Time *
+                </label>
+                <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                      id="end_date" name="end_date" type="datetime-local" 
+                      value="<%= new Date(event.end_date).toISOString().slice(0, 16) %>" required>
+              </div>
+              
+              <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="capacity">
+                  Maximum Capacity *
+                </label>
+                <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                      id="capacity" name="capacity" type="number" min="1" value="<%= event.capacity %>" required>
+              </div>
+              
+              <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="location_id">
+                  Venue *
+                </label>
+                <select class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                      id="location_id" name="location_id" required>
+                  <option value="">Select a venue</option>
+                  <% if (locals.locations) { %>
+                    <% locations.forEach(location => { %>
+                      <option value="<%= location.location_id %>" <%= currentLocation && currentLocation.location_id == location.location_id ? 'selected' : '' %>>
+                        <%= location.location_name %> (Capacity: <%= location.capacity %>)
+                      </option>
+                    <% }); %>
+                  <% } %>
+                </select>
+              </div>
+              
+              <div class="md:col-span-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="image">
+                  Event Image
+                </label>
+                <% if (event.image_url) { %>
+                  <div class="mb-2">
+                    <img src="<%= event.image_url %>" alt="Current event image" class="h-32 object-cover rounded">
+                    <p class="text-sm text-gray-500 mt-1">Current image. Upload a new one to replace it.</p>
+                  </div>
+                <% } %>
+                <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                      id="image" name="image" type="file" accept="image/*">
+                <p class="text-xs text-gray-500 mt-1">Max size: 5MB. Supported formats: JPG, PNG, GIF</p>
+              </div>
+            </div>
+            
+            <div class="mt-8 flex justify-end">
+              <a href="/host/event-details/<%= event.event_id %>" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">
+                Cancel
+              </a>
+              <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Update Event
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>
+  
+  <script>
+    // Validate end date is after start date
+    document.getElementById('end_date').addEventListener('change', function() {
+      const startDate = new Date(document.getElementById('start_date').value);
+      const endDate = new Date(this.value);
+      
+      if (endDate <= startDate) {
+        alert('End date must be after start date');
+        this.value = '';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/header') %>
+  <title>User Management - EventSphere</title>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <%- include('../partials/admin-nav') %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <!-- Flash Messages -->
+    <% if (locals.success) { %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 flash-message">
+        <%= success %>
+      </div>
+    <% } %>
+    
+    <% if (locals.error) { %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flash-message">
+        <%= error %>
+      </div>
+    <% } %>
+    
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">User Management</h1>
+      <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" id="add-user-btn">
+        Add New User
+      </button>
+    </div>
+    
+    <!-- Add User Modal -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden" id="add-user-modal">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Add New User</h2>
+          <button class="text-gray-400 hover:text-gray-600" id="close-modal-btn">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <form action="/admin/users" method="POST" data-validate="true">
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+              Full Name
+            </label>
+            <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="name" name="name" type="text" required>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+              Email
+            </label>
+            <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="email" name="email" type="email" required>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="mobile">
+              Mobile Number
+            </label>
+            <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="mobile" name="mobile" type="tel">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+              Password
+            </label>
+            <input class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="password" name="password" type="password" required>
+          </div>
+          
+          <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="role">
+              Role
+            </label>
+            <select class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="role" name="role" required>
+              <option value="">Select a role</option>
+              <option value="member">Member</option>
+              <option value="host">Host</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          
+          <div class="flex justify-end">
+            <button type="button" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2" id="cancel-btn">
+              Cancel
+            </button>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+              Create User
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Users Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                ID
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Mobile
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Role
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% if (locals.users && users.length > 0) { %>
+              <% users.forEach(user => { %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900"><%= user.person_id %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900"><%= user.person_name %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-500"><%= user.email %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-500"><%= user.mobile || '-' %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                      <%= user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 
+                         user.role === 'host' ? 'bg-blue-100 text-blue-800' : 
+                         'bg-green-100 text-green-800' %>">
+                      <%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <% if (user.person_id != currentUser?.id) { %>
+                      <button 
+                        class="text-red-600 hover:text-red-900 delete-user-btn" 
+                        data-user-id="<%= user.person_id %>"
+                        data-user-name="<%= user.person_name %>"
+                      >
+                        Delete
+                      </button>
+                      
+                      <!-- Hidden form for delete -->
+                      <form id="delete-form-<%= user.person_id %>" action="/admin/users/delete/<%= user.person_id %>" method="POST" class="hidden">
+                      </form>
+                    <% } else { %>
+                      <span class="text-gray-400">Current User</span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                  No users found
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>
+  
+  <script>
+    // Modal functionality
+    const modal = document.getElementById('add-user-modal');
+    const addUserBtn = document.getElementById('add-user-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    
+    addUserBtn.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+    });
+    
+    function closeModal() {
+      modal.classList.add('hidden');
+    }
+    
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+    
+    // Delete user confirmation
+    document.querySelectorAll('.delete-user-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const userId = this.dataset.userId;
+        const userName = this.dataset.userName;
+        
+        if (confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+          document.getElementById(`delete-form-${userId}`).submit();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

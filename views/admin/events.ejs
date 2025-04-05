@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/header') %>
+  <title>Event Management - EventSphere</title>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <%- include('../partials/admin-nav') %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <!-- Flash Messages -->
+    <% if (locals.success) { %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 flash-message">
+        <%= success %>
+      </div>
+    <% } %>
+    
+    <% if (locals.error) { %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flash-message">
+        <%= error %>
+      </div>
+    <% } %>
+    
+    <h1 class="text-2xl font-bold mb-6">Event Management</h1>
+    
+    <!-- Search and Filter -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div class="mb-4 md:mb-0">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="search">
+            Search Events
+          </label>
+          <input class="appearance-none border rounded w-full md:w-64 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                id="search" type="text" placeholder="Search by name...">
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="filter-status">
+              Status
+            </label>
+            <select class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="filter-status">
+              <option value="all">All</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="past">Past</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="filter-category">
+              Category
+            </label>
+            <select class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="filter-category">
+              <option value="all">All Categories</option>
+              <% if (locals.categories) { %>
+                <% categories.forEach(category => { %>
+                  <option value="<%= category.category_id %>"><%= category.category_name %></option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Events Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Event Name
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Organizer
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Category
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Participants
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Price
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200" id="events-table-body">
+            <% if (locals.events && events.length > 0) { %>
+              <% events.forEach(event => { %>
+                <tr class="event-row" data-name="<%= event.event_name.toLowerCase() %>" data-category="<%= event.category_id %>" data-status="<%= new Date(event.start_date) > new Date() ? 'upcoming' : 'past' %>">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900"><%= event.event_name %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-500"><%= event.organizer_name %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-500">
+                      <%= new Date(event.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                      <%= event.category_name %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= event.participant_count %> / <%= event.capacity %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    $<%= Number(event.price).toFixed(2) %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href="/" class="text-indigo-600 hover:text-indigo-900 mr-3" target="_blank">View</a>
+                    <button 
+                      class="text-red-600 hover:text-red-900 delete-event-btn" 
+                      data-event-id="<%= event.event_id %>"
+                      data-event-name="<%= event.event_name %>"
+                    >
+                      Delete
+                    </button>
+                    
+                    <!-- Hidden form for delete -->
+                    <form id="delete-form-<%= event.event_id %>" action="/admin/events/delete/<%= event.event_id %>" method="POST" class="hidden">
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                  No events found
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>
+  
+  <script>
+    // Search and filter functionality
+    const searchInput = document.getElementById('search');
+    const filterStatus = document.getElementById('filter-status');
+    const filterCategory = document.getElementById('filter-category');
+    const tableRows = document.querySelectorAll('.event-row');
+    
+    function filterTable() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const statusFilter = filterStatus.value;
+      const categoryFilter = filterCategory.value;
+      
+      tableRows.forEach(row => {
+        const name = row.dataset.name;
+        const status = row.dataset.status;
+        const category = row.dataset.category;
+        
+        const matchesSearch = name.includes(searchTerm);
+        const matchesStatus = statusFilter === 'all' || status === statusFilter;
+        const matchesCategory = categoryFilter === 'all' || category === categoryFilter;
+        
+        if (matchesSearch && matchesStatus && matchesCategory) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    
+    searchInput.addEventListener('input', filterTable);
+    filterStatus.addEventListener('change', filterTable);
+    filterCategory.addEventListener('change', filterTable);
+    
+    // Delete event confirmation
+    document.querySelectorAll('.delete-event-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const eventId = this.dataset.eventId;
+        const eventName = this.dataset.eventName;
+        
+        if (confirm(`Are you sure you want to delete event "${eventName}"? This action cannot be undone.`)) {
+          document.getElementById(`delete-form-${eventId}`).submit();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
