@@ -23,7 +23,7 @@ const Registration = {
   
   findById: async (regId) => {
     const result = await db.query(
-      `SELECT r.*, e.event_name, p.person_name
+      `SELECT r.*, e.event_name, e.start_date, e.end_date, e.price, p.person_name
        FROM registration r
        JOIN events e ON r.event_id = e.event_id
        JOIN person p ON r.person_id = p.person_id
@@ -81,6 +81,41 @@ const Registration = {
     );
     
     return parseInt(result.rows[0].count);
+  },
+  registerForEvent: async (personId, eventId) => {
+    try {
+      await db.query('CALL register_for_event($1, $2)', [personId, eventId]);
+      return true;
+    } catch (error) {
+      console.error('Error in registerForEvent:', error);
+      throw error;
+    }
+  },
+  
+  cancelRegistration: async (regId, personId) => {
+    try {
+      await db.query('CALL cancel_registration($1, $2)', [regId, personId]);
+      return true;
+    } catch (error) {
+      console.error('Error in cancelRegistration:', error);
+      throw error;
+    }
+  },
+
+  // Add this method to the Registration model
+deleteByEventId: async (eventId) => {
+  await db.query('DELETE FROM registration WHERE event_id = $1', [eventId]);
+  return true;
+},
+  
+  getEventStats: async (eventId) => {
+    try {
+      const result = await db.query('SELECT * FROM get_event_stats($1)', [eventId]);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error in getEventStats:', error);
+      throw error;
+    }
   }
 };
 

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/header') %>
+  <title><%= title %> - EventSphere</title>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <%- include('../partials/admin-nav') %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Edit Event: <%= event.event_name %></h1>
+      <a href="/admin/events/<%= event.event_id %>" class="text-indigo-600 hover:text-indigo-900">← Back to Event</a>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="p-6">
+        <form action="/admin/edit-event/<%= event.event_id %>" method="POST">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Event Name -->
+            <div class="col-span-2">
+              <label for="event_name" class="block text-gray-700 text-sm font-bold mb-2">Event Name</label>
+              <input type="text" id="event_name" name="event_name" value="<%= event.event_name %>" required
+                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            
+            <!-- Description -->
+            <div class="col-span-2">
+              <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Description</label>
+              <textarea id="description" name="description" rows="4"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"><%= event.description %></textarea>
+            </div>
+            
+            <!-- Price -->
+            <div>
+              <label for="price" class="block text-gray-700 text-sm font-bold mb-2">Price ($)</label>
+              <input type="number" id="price" name="price" value="<%= event.price %>" step="0.01" min="0" required
+                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            
+            <!-- Capacity -->
+            <div>
+              <label for="capacity" class="block text-gray-700 text-sm font-bold mb-2">Capacity</label>
+              <input type="number" id="capacity" name="capacity" value="<%= event.capacity %>" min="1" required
+                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            
+            <!-- Start Date -->
+            <div>
+              <label for="start_date" class="block text-gray-700 text-sm font-bold mb-2">Start Date & Time</label>
+              <input type="datetime-local" id="start_date" name="start_date" 
+                     value="<%= new Date(event.start_date).toISOString().slice(0, 16) %>" required
+                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            
+            <!-- End Date -->
+            <div>
+              <label for="end_date" class="block text-gray-700 text-sm font-bold mb-2">End Date & Time</label>
+              <input type="datetime-local" id="end_date" name="end_date" 
+                     value="<%= new Date(event.end_date).toISOString().slice(0, 16) %>" required
+                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            
+            <!-- Category -->
+            <div>
+              <label for="category_id" class="block text-gray-700 text-sm font-bold mb-2">Category</label>
+              <select id="category_id" name="category_id" required
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <% categories.forEach(category => { %>
+                  <option value="<%= category.category_id %>" <%= event.category_id === category.category_id ? 'selected' : '' %>>
+                    <%= category.category_name %>
+                  </option>
+                <% }) %>
+              </select>
+            </div>
+            
+            <!-- Location -->
+            <div>
+              <label for="location_id" class="block text-gray-700 text-sm font-bold mb-2">Location</label>
+              <select id="location_id" name="location_id" required
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <% locations.forEach(location => { %>
+                  <option value="<%= location.location_id %>">
+                    <%= location.location_name %> (Capacity: <%= location.capacity %>)
+                  </option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          
+          <div class="flex justify-end mt-6">
+            <a href="/admin/events/<%= event.event_id %>" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition mr-2">Cancel</a>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Update Event</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>
+</body>
+</html>

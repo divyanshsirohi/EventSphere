@@ -6,9 +6,12 @@
     "scripts": {
         "start": "node app.js",
         "dev": "nodemon app.js",
-        "setup-db": "node setup-db.js"
+        "setup-db": "node setup-db.js",
+        "setup-procedures": "nodemon setup-plpgsql.js",
+        "seed": "python database/populate-db.py > database/seed_data.sql && psql -U postgres -d eventsphere -f seed_data.sql"
     },
     "dependencies": {
+        "@tailwindcss/vite": "^4.1.4",
         "bcrypt": "^5.1.0",
         "body-parser": "^1.20.2",
         "dotenv": "^16.0.3",
@@ -16,8 +19,10 @@
         "express": "^4.18.2",
         "express-flash": "^0.0.2",
         "express-session": "^1.17.3",
+        "method-override": "^3.0.0",
         "multer": "^1.4.5-lts.1",
-        "pg": "^8.10.0"
+        "pg": "^8.10.0",
+        "tailwindcss": "^4.1.4"
     },
     "devDependencies": {
         "nodemon": "^3.1.9"

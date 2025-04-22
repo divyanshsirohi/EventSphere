@@ -38,7 +38,6 @@
           </div>
           <div>
             <p class="text-gray-500 text-sm">Registered Events</p>
-            <h3 class="text-2xl font-bold"><%= locals.stats ? stats.registeredCount : 0 %></h3>
           </div>
         </div>
       </div>
@@ -84,7 +83,7 @@
           <% registrations.forEach(registration => { %>
             <div class="border rounded-lg p-4 hover:bg-gray-50 transition">
               <div class="flex justify-between items-start">
-                <div>
+                <div> 
                   <h3 class="font-semibold"><%= registration.event_name %></h3>
                   <p class="text-sm text-gray-500">
                     <%= new Date(registration.start_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %>

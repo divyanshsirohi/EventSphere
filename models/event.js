@@ -64,6 +64,22 @@ const Event = {
     
     return result.rows[0];
   },
+
+  // Make sure your Event model has this update method
+update: async (eventId, eventData) => {
+  const { event_name, description, price, start_date, end_date, capacity, category_id } = eventData;
+  
+  const result = await db.query(
+    `UPDATE events 
+     SET event_name = $1, description = $2, price = $3, start_date = $4, 
+         end_date = $5, capacity = $6, category_id = $7
+     WHERE event_id = $8
+     RETURNING *`,
+    [event_name, description, price, start_date, end_date, capacity, category_id, eventId]
+  );
+  
+  return result.rows[0];
+},
   
   getAll: async () => {
     const result = await db.query(
@@ -79,11 +95,14 @@ const Event = {
   
   getByOrganizer: async (organizerId) => {
     const result = await db.query(
-      `SELECT e.*, c.category_name
-       FROM events e
-       JOIN category c ON e.category_id = c.category_id
-       WHERE e.organizer_id = $1
-       ORDER BY e.start_date`,
+      `SELECT *
+        FROM (
+            SELECT e.*, c.category_name
+            FROM events e
+            JOIN category c ON e.category_id = c.category_id
+        ) AS event_with_category
+        WHERE event_with_category.organizer_id = $1
+        ORDER BY event_with_category.start_date`,
       [organizerId]
     );
     

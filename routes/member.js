@@ -6,6 +6,8 @@ const Registration = require('../models/registration');
 const Payment = require('../models/payment');
 const Notification = require('../models/notification');
 const auth = require('../middleware/auth');
+const pool = require('../models/db');
+
 
 // Dashboard
 router.get('/dashboard', auth.isMember, async (req, res) => {
@@ -148,70 +150,41 @@ router.get('/register-event/:eventId', auth.isMember, async (req, res) => {
   try {
     const userId = req.session.user.id;
     const eventId = req.params.eventId;
-    
-    // Check if already registered
-    const existingReg = await Registration.findByPersonAndEvent(userId, eventId);
-    
-    if (existingReg) {
-      req.flash('error', 'You are already registered for this event');
-      return res.redirect('/');
+
+    // Call the stored procedure
+    await pool.query('CALL register_for_event($1, $2)', [userId, eventId]);
+
+    // Check if a new payment exists
+    const paymentResult = await pool.query(`
+      SELECT p.payment_id
+      FROM payment p
+      JOIN registration r ON r.reg_id = p.reg_id
+      WHERE r.person_id = $1 AND r.event_id = $2 AND p.status = 'pending'
+      ORDER BY p.payment_date DESC
+      LIMIT 1
+    `, [userId, eventId]);
+
+    if (paymentResult.rows.length > 0) {
+      // Redirect to payment page
+      return res.redirect(`/payment/form/${paymentResult.rows[0].payment_id}`);
     }
-    
-    // Get event details
-    const event = await Event.findById(eventId);
-    
-    if (!event) {
-      req.flash('error', 'Event not found');
-      return res.redirect('/');
-    }
-    
-    // Check if event has capacity
-    const participantCount = await Event.getParticipantCount(eventId);
-    
-    // Create registration
-    let registrationStatus = 'pending';
-    if (participantCount < event.capacity) {
-      registrationStatus = 'confirmed';
-    }
-    
-    const registration = await Registration.create({
-      person_id: userId,
-      event_id: eventId,
-      status: registrationStatus
-    });
-    
-    if (registrationStatus === 'confirmed') {
-      // Create payment entry
-      await Payment.create({
-        reg_id: registration.reg_id,
-        amount: event.price,
-        status: 'pending'
-      });
-      
-      // Create notification
-      await Notification.create({
-        person_id: userId,
-        message: `You have successfully registered for ${event.event_name}. Please complete your payment.`
-      });
-      
-      req.flash('success', 'Registration successful! Please proceed to payment.');
-    } else {
-      // Add to waitlist
-      await Notification.create({
-        person_id: userId,
-        message: `You have been added to the waitlist for ${event.event_name}. We'll notify you if a spot becomes available.`
-      });
-      
-      req.flash('success', 'The event is at full capacity. You have been added to the waitlist.');
-    }
-    
-    res.redirect('/member/joined-events');
+
+    // Otherwise, registration was free or on waitlist
+    req.flash('success', 'Registration submitted. Check your notifications for updates.');
+    return res.redirect('/member/joined-events');
   } catch (error) {
-    console.error(error);
-    req.flash('error', 'Failed to register for the event');
-    res.redirect('/');
+    console.error('Registration error:', error.message);
+    if (error.message.includes('already registered')) {
+      req.flash('info', 'You are already registered for this event');
+      return res.redirect('/member/joined-events');
+    }
+
+    req.flash('error', 'Failed to register for event');
+    return res.redirect('/');
   }
 });
+
+
 
 // Cancel registration
 router.post('/cancel-registration/:regId', auth.isMember, async (req, res) => {

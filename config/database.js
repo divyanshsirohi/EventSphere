@@ -12,3 +12,16 @@ const pool = new Pool({
 module.exports = {
   query: (text, params) => pool.query(text, params),
 };
+
+
+module.exports = {
+  query: (text, params) => pool.query(text, params),
+  getClient: async () => {
+    const client = await pool.connect();
+    return client;
+  }
+};
+
+
+
+

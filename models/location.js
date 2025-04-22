@@ -22,6 +22,21 @@ const Location = {
     
     return result.rows[0];
   },
+
+  // Add this method to the Location model if it doesn't exist
+updateEventLocation: async (eventId, locationId) => {
+  // First delete any existing location associations
+  await db.query('DELETE FROM location_hosting WHERE event_id = $1', [eventId]);
+  
+  // Then insert the new association
+  await db.query(
+    'INSERT INTO location_hosting (location_id, event_id) VALUES ($1, $2)',
+    [locationId, eventId]
+  );
+  
+  return true;
+}
+,
   
   delete: async (locationId) => {
     await db.query('DELETE FROM location WHERE location_id = $1', [locationId]);
@@ -66,14 +81,17 @@ const Location = {
   
   getLocationForEvent: async (eventId) => {
     const result = await db.query(
-      `SELECT l.* FROM location l
-       JOIN location_hosting lh ON l.location_id = lh.location_id
-       WHERE lh.event_id = $1`,
+      `SELECT * FROM location 
+       WHERE location_id = (
+         SELECT location_id FROM location_hosting 
+         WHERE event_id = $1
+       )`,
       [eventId]
     );
-    
+  
     return result.rows[0];
   }
+  
 };
 
 module.exports = Location;

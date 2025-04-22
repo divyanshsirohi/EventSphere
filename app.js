@@ -4,6 +4,7 @@ const flash = require('express-flash');
 const path = require('path');
 const bodyParser = require('body-parser');
 require('dotenv').config();
+const methodOverride = require('method-override');
 
 // Routes
 const indexRoutes = require('./routes/index');
@@ -11,7 +12,7 @@ const authRoutes = require('./routes/auth');
 const memberRoutes = require('./routes/member');
 const hostRoutes = require('./routes/host');
 const adminRoutes = require('./routes/admin');
-
+const paymentRoutes = require('./routes/payment');
 const app = express();
 
 // View engine setup
@@ -50,6 +51,7 @@ app.use('/auth', authRoutes);
 app.use('/member', memberRoutes);
 app.use('/host', hostRoutes);
 app.use('/admin', adminRoutes);
+app.use('/payment', paymentRoutes);
 
 // 404 handler
 app.use((req, res) => {

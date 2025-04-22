@@ -11,6 +11,8 @@ const Registration = require('../models/registration');
 const Payment = require('../models/payment');
 const Notification = require('../models/notification');
 const auth = require('../middleware/auth');
+const db = require('../config/database');
+
 
 // Setup multer for file uploads
 const storage = multer.diskStorage({
@@ -345,34 +347,30 @@ router.post('/update-event/:eventId', auth.isHost, upload.single('image'), async
 // Delete Event
 router.post('/delete-event/:eventId', auth.isHost, async (req, res) => {
   try {
-    const userId = req.session.user.id;
     const eventId = req.params.eventId;
     
-    // Get event details
-    const event = await Event.findById(eventId);
+    // Start a transaction
+    await db.query('BEGIN');
     
-    if (!event || event.organizer_id !== userId) {
-      req.flash('error', 'Event not found or unauthorized');
-      return res.redirect('/host/hosted-events');
-    }
+    // Delete related records first to avoid foreign key constraint errors
+    // The order matters due to foreign key dependencies
+    await db.query('DELETE FROM payment WHERE reg_id IN (SELECT reg_id FROM registration WHERE event_id = $1)', [eventId]);
+    await db.query('DELETE FROM registration WHERE event_id = $1', [eventId]);
+    await db.query('DELETE FROM participated_in WHERE event_id = $1', [eventId]);
+    await db.query('DELETE FROM waitlist WHERE event_id = $1', [eventId]);
+    await db.query('DELETE FROM location_hosting WHERE event_id = $1', [eventId]);
     
-    // Get registrations to notify users
-    const registrations = await Registration.getByEvent(eventId);
-    
-    // Notify registered participants about the event cancellation
-    for (const reg of registrations) {
-      await Notification.create({
-        person_id: reg.person_id,
-        message: `Event cancelled: "${event.event_name}" has been cancelled by the organizer.`
-      });
-    }
-    
-    // Delete the event
+    // Finally delete the event
     await Event.delete(eventId);
+    
+    // Commit the transaction
+    await db.query('COMMIT');
     
     req.flash('success', 'Event deleted successfully');
     res.redirect('/host/hosted-events');
   } catch (error) {
+    // Rollback in case of error
+    await db.query('ROLLBACK');
     console.error(error);
     req.flash('error', 'Failed to delete event');
     res.redirect('/host/hosted-events');

@@ -39,6 +39,16 @@ const Payment = {
     const result = await db.query('SELECT * FROM payment WHERE reg_id = $1', [regId]);
     return result.rows[0];
   },
+
+  // Add this method to the Payment model
+deleteByEventId: async (eventId) => {
+  await db.query(
+    `DELETE FROM payment 
+     WHERE reg_id IN (SELECT reg_id FROM registration WHERE event_id = $1)`,
+    [eventId]
+  );
+  return true;
+},
   
   getByPerson: async (personId) => {
     const result = await db.query(

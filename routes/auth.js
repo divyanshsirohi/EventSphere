@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
 
+
 // Login page
 router.get('/login', (req, res) => {
   res.render('auth/login');
@@ -82,6 +83,20 @@ router.post('/register', async (req, res) => {
       return res.redirect('/auth/register');
     }
     
+    //check if mobile number is valid
+    if (mobile.length !== 10) {
+      req.flash('error', 'Mobile number must be 10 digits long');
+      return res.redirect('/auth/register');
+    }
+    // Check if mobile number contains only digitsZ
+    if (!/^\d+$/.test(mobile)) {
+      req.flash('error', 'Mobile number must contain digits only');
+      return res.redirect('/auth/register');
+    }
+    else{
+      req.flash('error', 'Invalid phone number. Please try again.');
+    }
+
     // Create new user
     const user = await User.create({
       name,
