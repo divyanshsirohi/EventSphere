@@ -7,7 +7,6 @@ const Location = require('../models/location');
 const Registration = require('../models/registration');
 const Payment = require('../models/payment');
 const auth = require('../middleware/auth');
-
 const db = require('../config/database');
 
 // Middleware to check if user is admin

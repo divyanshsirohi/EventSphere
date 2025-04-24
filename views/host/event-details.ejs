@@ -27,9 +27,13 @@
         <a href="/host/edit-event/<%= event.event_id %>" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
           Edit Event
         </a>
-        <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" id="delete-event-btn">
+        <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline delete-event-btn" 
+                data-event-id="<%= event.event_id %>" 
+                data-event-name="<%= event.event_name %>">
           Delete Event
         </button>
+<form id="delete-form-<%= event.event_id %>" action="/host/delete-event/<%= event.event_id %>" method="POST" class="hidden"></form>
+
         <form id="delete-form" action="/host/delete-event/<%= event.event_id %>" method="POST" class="hidden"></form>
       </div>
     </div>
@@ -234,36 +238,21 @@
   <%- include('../partials/footer') %>
   
   <script>
-    // Delete event confirmation
     document.addEventListener('DOMContentLoaded', function() {
-      document.querySelectorAll('.delete-event-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const eventId = this.dataset.eventId;
-          const eventName = this.dataset.eventName;
-          
-          if (confirm(`Are you sure you want to delete event "${eventName}"? This action cannot be undone.`)) {
-            // Use fetch API to send a POST request to the delete endpoint
-            fetch(`/host/event-delete/${eventId}`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            })
-            .then(response => {
-              if (response.ok) {
-                window.location.href = '/host/hosted-events'; // Redirect on success
-              } else {
-                alert('Failed to delete event. Please try again.');
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('An error occurred while deleting the event');
-            });
-          }
-        });
+      // Get the delete button
+      const deleteBtn = document.querySelector('.delete-event-btn');
+      
+      // Add click event listener
+      deleteBtn.addEventListener('click', function() {
+        const eventId = this.dataset.eventId;
+        const eventName = this.dataset.eventName;
+        
+        if (confirm(`Are you sure you want to delete "${eventName}"? This action cannot be undone.`)) {
+          document.getElementById(`delete-form-${eventId}`).submit();
+        }
       });
     });
   </script>
+  
 </body>
 </html>

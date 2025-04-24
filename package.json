@@ -11,6 +11,7 @@
         "seed": "python database/populate-db.py > database/seed_data.sql && psql -U postgres -d eventsphere -f seed_data.sql"
     },
     "dependencies": {
+        "@headlessui/react": "^2.2.2",
         "@tailwindcss/vite": "^4.1.4",
         "bcrypt": "^5.1.0",
         "body-parser": "^1.20.2",

@@ -108,6 +108,27 @@ update: async (eventId, eventData) => {
     
     return result.rows;
   },
+
+  // Search events
+ async search(query) {
+  try {
+    const result = await pool.query(`
+      SELECT *
+      FROM event
+      WHERE 
+        LOWER(event_name) LIKE LOWER($1) OR
+        LOWER(description) LIKE LOWER($1) OR
+        LOWER(location) LIKE LOWER($1) OR
+        LOWER(category) LIKE LOWER($1)
+      ORDER BY start_date ASC
+    `, [`%${query}%`]);
+    
+    return result.rows;
+  } catch (error) {
+    console.error('Error searching events:', error);
+    throw error;
+  }
+},
   
   getParticipantCount: async (eventId) => {
     const result = await db.query(
@@ -125,8 +146,7 @@ update: async (eventId, eventData) => {
        JOIN category c ON e.category_id = c.category_id
        JOIN person p ON e.organizer_id = p.person_id
        WHERE e.start_date > NOW()
-       ORDER BY e.start_date
-       LIMIT 10`
+       ORDER BY e.start_date`
     );
     
     return result.rows;
@@ -147,5 +167,7 @@ update: async (eventId, eventData) => {
     return result.rows;
   }
 };
+
+
 
 module.exports = Event;

@@ -36,7 +36,7 @@ router.get('/dashboard', auth.isMember, async (req, res) => {
     
     res.render('member/dashboard', {
       user,
-      registrations: registrations.slice(0, 3), // Show only the first 3
+      registrations: registrations.slice(0, 10), // Show only the first 3
       notifications,
       stats,
       title: 'Member Dashboard - EventSphere'
@@ -184,8 +184,6 @@ router.get('/register-event/:eventId', auth.isMember, async (req, res) => {
   }
 });
 
-
-
 // Cancel registration
 router.post('/cancel-registration/:regId', auth.isMember, async (req, res) => {
   try {
@@ -243,5 +241,45 @@ router.post('/read-notification/:notificationId', auth.isMember, async (req, res
     return res.status(500).json({ success: false });
   }
 });
+
+// Search events
+router.get('/search-events', auth.isMember, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const searchQuery = req.query.query;
+    
+    // Get user information
+    const user = await User.findById(userId);
+    
+    // If no search query, redirect to dashboard
+    if (!searchQuery) {
+      return res.redirect('/member/dashboard');
+    }
+    
+    // Search for events
+    const events = await Event.search(searchQuery);
+    
+    // Get user's registrations to check which events they're already registered for
+    const registrations = await Registration.getByPerson(userId);
+    const registeredEventIds = registrations.map(reg => reg.event_id);
+    
+    // Add a property to each event to indicate if user is registered
+    events.forEach(event => {
+      event.isRegistered = registeredEventIds.includes(event.event_id);
+    });
+    
+    res.render('member/search-results', {
+      user,
+      events,
+      searchQuery,
+      title: 'Search Results - EventSphere'
+    });
+  } catch (error) {
+    console.error(error);
+    req.flash('error', 'Failed to search events');
+    res.redirect('/member/dashboard');
+  }
+});
+
 
 module.exports = router;
